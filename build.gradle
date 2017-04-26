@@ -1,0 +1,88 @@
+// apply from: 'tasks.gradle'
+// processResources.dependsOn copyConfiguration
+loadConfiguration()
+
+task copyConfiguration << {
+        println "Target environment: $environment"
+
+        copy {
+            from "src/main/environment/$environment"
+            into "src/main/resources"
+            include "*/"
+        }
+ }
+
+def loadConfiguration() {
+    def environment = hasProperty('env') ? env : 'dev'
+    project.ext.environment = environment
+}
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.2.2.RELEASE")
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+apply plugin: 'spring-boot'
+apply plugin: 'war'
+
+jar {
+    baseName = 'ROOT'
+}
+
+war {
+    baseName = 'ROOT'
+}
+
+repositories {
+	jcenter()
+    mavenCentral()
+    maven { url "http://repo.spring.io/libs-snapshot" }
+}
+
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
+configurations {
+	providedRuntime
+}
+
+configurations.all {
+    exclude module: 'slf4j-log4j12'
+}
+
+
+dependencies {
+    compile("org.springframework.boot:spring-boot-starter-web"){
+    	//exclude module: "org.springframework.boot:spring-boot-starter-logging"
+    }
+   
+    compile("org.springframework.boot:spring-boot-starter-jdbc:1.2.2.RELEASE"){
+    	//exclude module: "org.springframework.boot:spring-boot-starter-logging"
+    }
+    
+    providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
+    compile ("org.springframework.boot:spring-boot-starter-log4j")
+    compile("commons-httpclient:commons-httpclient:3.1")
+    compile("org.apache.httpcomponents:httpclient:4.3.6")
+    compile("org.apache.httpcomponents:fluent-hc:4.3.6")
+   	compile("org.mybatis:mybatis:3.2.8")
+	compile("org.mybatis:mybatis-spring:1.2.2")
+	compile("mysql:mysql-connector-java:5.1.34")
+	compile("commons-dbcp:commons-dbcp:1.4")
+	compile("org.apache.commons:commons-lang3:3.0")
+	compile("org.springframework:spring-test:3.2.0.RELEASE")
+	compile("commons-io:commons-io:2.4")
+    testCompile("junit:junit")
+}
+
+    
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.3'
+}
